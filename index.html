@@ -1,6 +1,59 @@
-<html>
-    <body>
-        <h1>New Title</h1>
-        <a href="https://vimla.se">Go</a>
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Generator</title>
+</head>
+<body>
+  <form id="link-form">
+    <label for="url-input">Enter a URL:</label>
+    <input type="text" id="url-input" placeholder="example.com" required>
+    <button type="submit">Submit</button>
+  </form>
+
+  <p id="error" style="color: red;"></p>
+  <div id="output"></div>
+
+  <script>
+    const form = document.getElementById("link-form");
+    const input = document.getElementById("url-input");
+    const output = document.getElementById("output");
+    const error = document.getElementById("error");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      output.innerHTML = "";
+      error.textContent = "";
+
+      let value = input.value.trim();
+
+      // Add https:// if no protocol was given
+      if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
+        value = "https://" + value;
+      }
+
+      let url;
+      try {
+        url = new URL(value);
+      } catch {
+        error.textContent = "That doesn't look like a valid URL.";
+        return;
+      }
+
+      // Only allow http and https
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        error.textContent = "Only http and https URLs are allowed.";
+        return;
+      }
+
+      const a = document.createElement("a");
+      a.href = url.href;
+      a.textContent = url.href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      output.appendChild(a);
+    });
+  </script>
+</body>
 </html>
