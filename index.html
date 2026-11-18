@@ -1,59 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Link Generator</title>
+<meta charset="UTF-8">
+<title>Referrer Tester</title>
+<style>
+  body { font-family: monospace; max-width: 700px; margin: 2em auto; padding: 0 1em; }
+  input, select, textarea { width: 100%; box-sizing: border-box; margin: 4px 0 12px; padding: 6px; }
+  .current-url { word-break: break-all; background: #f2f2f2; padding: 8px; }
+  button { padding: 6px 14px; margin-right: 6px; }
+</style>
 </head>
 <body>
-  <form id="link-form">
-    <label for="url-input">Enter a URL:</label>
-    <input type="text" id="url-input" placeholder="example.com" required>
-    <button type="submit">Submit</button>
-  </form>
+  <h2>Referrer Payload Tester</h2>
 
-  <p id="error" style="color: red;"></p>
+  <p><strong>This page's current URL (the referrer that will be sent):</strong></p>
+  <div class="current-url" id="current-url"></div>
+
+  <h3>1. Craft a path-based payload URL</h3>
+  <label>Path payload (appended after /):</label>
+  <input id="path-payload" placeholder="e.g. %22%3E%3Cscript%3Ealert(1)%3C/script%3E">
+  <label>Query payload (appended as ?):</label>
+  <input id="query-payload" placeholder="e.g. x=<script>alert(1)</script>">
+  <button id="build-crafted">Build crafted URL</button>
+  <div class="current-url" id="crafted-url"></div>
+
+  <h3>2. Target URL to navigate to (for referrer leak test)</h3>
+  <input id="target-url" placeholder="https://target.example.com/">
+
+  <label>Referrer-Policy to apply on the link:</label>
+  <select id="policy">
+    <option value="unsafe-url">unsafe-url (send full URL)</option>
+    <option value="origin">origin (send only origin)</option>
+    <option value="origin-when-cross-origin">origin-when-cross-origin</option>
+    <option value="strict-origin-when-cross-origin">strict-origin-when-cross-origin (browser default)</option>
+    <option value="no-referrer">no-referrer (send nothing)</option>
+    <option value="same-origin">same-origin</option>
+  </select>
+
+  <button id="generate">Generate Link</button>
   <div id="output"></div>
 
-  <script>
-    const form = document.getElementById("link-form");
-    const input = document.getElementById("url-input");
-    const output = document.getElementById("output");
-    const error = document.getElementById("error");
-
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      output.innerHTML = "";
-      error.textContent = "";
-
-      let value = input.value.trim();
-
-      // Add https:// if no protocol was given
-      if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) {
-        value = "https://" + value;
-      }
-
-      let url;
-      try {
-        url = new URL(value);
-      } catch {
-        error.textContent = "That doesn't look like a valid URL.";
-        return;
-      }
-
-      // Only allow http and https
-      if (url.protocol !== "http:" && url.protocol !== "https:") {
-        error.textContent = "Only http and https URLs are allowed.";
-        return;
-      }
-
-      const a = document.createElement("a");
-      a.href = url.href;
-      a.textContent = url.href;
-      a.target = "_blank";
-      a.rel = "noopener noreferrer";
-      output.appendChild(a);
-    });
-  </script>
+  <script src="referrer-tester.js"></script>
 </body>
 </html>
